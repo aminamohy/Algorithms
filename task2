@@ -1,0 +1,91 @@
+#include<iostream>
+#include <algorithm>
+using namespace std;
+
+int sequentialSearch(int arr[],int n,int key){
+    for(int i=0 ;i<n;i++){
+        if(arr[i]==key)
+            return i;
+    }
+    return -1;
+}
+
+int recursiveSequentialSearch(int arr[],int n,int key ,int i=0){
+    if(i==n)
+        return -1;
+    if(arr[i]==key)
+        return i;
+    else
+        return recursiveSequentialSearch(arr,n,key,i+1);
+}
+
+int binarySearch(int arr[],int key,int l,int r){
+
+    while (l<=r){
+        int m=(l+r)/2;
+        if(key==arr[m])
+            return m;
+        else if(key>arr[m])
+            l=m+1;
+        
+        else
+            r=m-1;
+        }
+    return -1;
+
+}
+
+int recursiveBinarySearch(int arr[],int key,int l,int r){
+
+    if(r>=l){
+        int m=(l+r)/2;
+        if(key==arr[m])
+            return m;
+        else if(key>arr[m])
+            return recursiveBinarySearch(arr,key,m+1, r);
+        else
+            return recursiveBinarySearch(arr,key,l,m-1);
+    }
+    return -1;
+
+}
+
+int main(){
+
+    int n,target;
+    cout<<"enter the size of the list : ";
+    cin>>n;
+    int* arr =new int[n];
+    cout<<"enter the values separated by space : ";
+    for(int i=0;i<n;i++){
+        cin>>arr[i];
+    }
+    
+    cout<<"enter the target : ";
+    cin>>target;
+
+    int index1=sequentialSearch(arr,n,target);
+    int index2=recursiveSequentialSearch(arr,n,target);
+    //sort the array before calling binary search
+    sort(arr, arr + n);
+    int index3=binarySearch(arr,target,0,n-1);
+    int index4=recursiveBinarySearch(arr,target,0,n-1);
+
+    cout << "Results:\n";
+    cout << "Sequential (Iterative): ";
+    (index1 != -1) ? cout << "Found at index " << index1 << endl : cout << "Not found\n";
+
+    cout << "Sequential (Recursive): ";
+    (index2 != -1) ? cout << "Found at index " << index2 << endl : cout << "Not found\n";
+
+    cout<<"Note: These results are after sorting the list\n";
+    cout << "Binary (Iterative): ";
+    (index3 != -1) ? cout << "Found at index " << index3 << endl : cout << "Not found\n";
+
+    cout << "Binary (Recursive): ";
+    (index4 != -1) ? cout << "Found at index " << index4 << endl : cout << "Not found\n";
+
+    delete[] arr;
+    return 0;
+
+}
