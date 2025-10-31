@@ -1,31 +1,342 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36623.8 d17.14
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "task3", "task3\task3.vcxproj", "{4F5C4D55-6C3F-44B9-8159-9721CC2A9490}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4F5C4D55-6C3F-44B9-8159-9721CC2A9490}.Debug|x64.ActiveCfg = Debug|x64
-		{4F5C4D55-6C3F-44B9-8159-9721CC2A9490}.Debug|x64.Build.0 = Debug|x64
-		{4F5C4D55-6C3F-44B9-8159-9721CC2A9490}.Debug|x86.ActiveCfg = Debug|Win32
-		{4F5C4D55-6C3F-44B9-8159-9721CC2A9490}.Debug|x86.Build.0 = Debug|Win32
-		{4F5C4D55-6C3F-44B9-8159-9721CC2A9490}.Release|x64.ActiveCfg = Release|x64
-		{4F5C4D55-6C3F-44B9-8159-9721CC2A9490}.Release|x64.Build.0 = Release|x64
-		{4F5C4D55-6C3F-44B9-8159-9721CC2A9490}.Release|x86.ActiveCfg = Release|Win32
-		{4F5C4D55-6C3F-44B9-8159-9721CC2A9490}.Release|x86.Build.0 = Release|Win32
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {B83040C3-89B0-4F61-9F29-9CADEC777E0D}
-	EndGlobalSection
-EndGlobal
+#include <iostream>
+#include <vector>
+using namespace std;
+
+//  HEAP CLASS 
+class Heap {
+private:
+    vector<int> heap; 
+
+    void heapifyDown(int i, int n) {
+        int largest = i;
+        int left = 2 * i;
+        int right = 2 * i + 1;
+
+        if (left <= n && heap[left] > heap[largest])
+            largest = left;
+        if (right <= n && heap[right] > heap[largest])
+            largest = right;
+
+        if (largest != i) {
+            swap(heap[i], heap[largest]);
+            heapifyDown(largest, n);
+        }
+    }
+
+    void heapifyUp(int i) {
+        while (i > 1 && heap[i / 2] < heap[i]) {
+            swap(heap[i], heap[i / 2]);
+            i = i / 2;
+        }
+    }
+
+public:
+    Heap() {
+        heap.push_back(-1); 
+    }
+
+    void insert(int value) {
+        heap.push_back(value);
+        heapifyUp(heap.size() - 1);
+        cout << "Element inserted successfully.\n";
+        display();
+    }
+
+    int extractMax() {
+        if (heap.size() <= 1) {
+            cout << " Heap is empty!\n";
+            return -1;
+        }
+
+        int maxVal = heap[1];
+        heap[1] = heap.back();
+        heap.pop_back();
+
+        if (heap.size() > 1)
+            heapifyDown(1, heap.size() - 1);
+
+        cout << "Extracted Max: " << maxVal << endl;
+        display();
+        return maxVal;
+    }
+
+    int extractMin() {
+        if (heap.size() <= 1) {
+            cout << " Heap is empty!\n";
+            return -1;
+        }
+
+        int minIndex = 1;
+        for (int i = 2; i < heap.size(); i++) {
+            if (heap[i] < heap[minIndex])
+                minIndex = i;
+        }
+        int mValue = heap[minIndex];
+
+        // Remove the min element
+        heap[minIndex] = heap.back();
+        heap.pop_back();
+
+        if (heap.size() > 1) {
+            heapifyDown(minIndex, heap.size() - 1);
+            heapifyUp(minIndex);
+        }
+
+        cout << "Extracted Min: " << mValue << endl;
+        display();
+        return mValue;
+    }
+
+    void deleteElement(int value) {
+        int index = -1;
+        for (int i = 1; i < heap.size(); i++) {
+            if (heap[i] == value) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1) {
+            cout << " Element not found.\n";
+            return;
+        }
+
+        heap[index] = heap.back();
+        heap.pop_back();
+
+        if (index < heap.size()) {
+            heapifyDown(index, heap.size() - 1);
+            heapifyUp(index);
+        }
+
+        cout << "Element deleted successfully.\n";
+        display();
+    }
+
+    void display() {
+        if (heap.size() <= 1) {
+            cout << "(Heap is empty)\n";
+            return;
+        }
+        cout << "Current Heap: ";
+        for (int i = 1; i < heap.size(); i++)
+            cout << heap[i] << " ";
+        cout << endl;
+    }
+
+    bool isEmpty() {
+        return heap.size() <= 1;
+    }
+};
+
+// PRIORITY QUEUE  
+class PriorityQueue {
+private:
+    Heap heap;
+
+public:
+    void insert(int value, int priority) {
+        heap.insert(priority);
+        cout << "Inserted value " << value << " with priority " << priority << endl;
+    }
+
+    void extractHighestPriority() {
+        heap.extractMax();
+    }
+
+    void deletePriority(int priority) {
+        heap.deleteElement(priority);
+    }
+
+    void display() {
+        heap.display();
+    }
+
+    bool isEmpty() {
+        return heap.isEmpty();
+    }
+};
+
+//  HEAP SORT
+void maxHeapify(vector<int>& A, int i, int n) {
+    int largest = i;
+    int left = 2 * i;
+    int right = 2 * i + 1;
+
+    if (left <= n && A[left] > A[largest])
+        largest = left;
+    if (right <= n && A[right] > A[largest])
+        largest = right;
+
+    if (largest != i) {
+        swap(A[i], A[largest]);
+        maxHeapify(A, largest, n);
+    }
+}
+
+void buildMaxHeap(vector<int>& A, int n) {
+    for (int i = n / 2; i >= 1; i--)
+        maxHeapify(A, i, n);
+}
+
+void heapSort(vector<int>& A) {
+    int n = A.size() - 1;
+    buildMaxHeap(A, n);
+    for (int i = n; i >= 2; i--) {
+        swap(A[1], A[i]);
+        maxHeapify(A, 1, i - 1);
+    }
+}
+
+
+void heapTest() {
+    Heap h;
+    int n;
+    cout << "Enter number of elements to insert in Heap: ";
+    cin >> n;
+
+    cout << "Enter elements:\n";
+    for (int i = 0; i < n; i++) {
+        int x;
+        cin >> x;
+        h.insert(x);
+    }
+
+    int op;
+    do {
+        cout << "\n Heap Operations\n";
+        cout << "1. Extract Max\n";
+        cout << "2. Extract Min\n";
+        cout << "3. Insert Element\n";
+        cout << "4. Delete Element\n";
+        cout << "5. Display Heap\n";
+        cout << "6. Exit Heap Test\n";
+        cout << "Enter your choice: ";
+        cin >> op;
+
+        switch (op) {
+        case 1: h.extractMax(); break;
+        case 2: h.extractMin(); break;
+        case 3: {
+            int val;
+            cout << "Enter value to insert: ";
+            cin >> val;
+            h.insert(val);
+            break;
+        }
+        case 4: {
+            int val;
+            cout << "Enter value to delete: ";
+            cin >> val;
+            h.deleteElement(val);
+            break;
+        }
+        case 5: h.display(); break;
+        case 6: cout << "Exiting Heap Test...\n"; break;
+        default: cout << "Invalid choice.\n";
+        }
+    } while (op != 6);
+}
+
+void priorityQueueTest() {
+    PriorityQueue pq;
+    int n;
+    cout << "Enter number of elements to insert in Priority Queue: ";
+    cin >> n;
+
+    cout << "Enter elements and their priorities:\n";
+    for (int i = 0; i < n; i++) {
+        int val, p;
+        cout << "Value " << i + 1 << ": ";
+        cin >> val;
+        cout << "Priority " << i + 1 << ": ";
+        cin >> p;
+        pq.insert(val, p);
+    }
+
+    int op;
+    do {
+        cout << " Priority Queue Operations\n";
+        cout << "1. Extract Highest Priority\n";
+        cout << "2. Insert Element\n";
+        cout << "3. Delete by Priority\n";
+        cout << "4. Display Queue\n";
+        cout << "5. Exit \n";
+        cout << "Enter your choice: ";
+        cin >> op;
+
+        switch (op) {
+        case 1:
+            pq.extractHighestPriority();
+            break;
+        case 2: {
+            int val, pr;
+            cout << "Enter value: ";
+            cin >> val;
+            cout << "Enter priority: ";
+            cin >> pr;
+            pq.insert(val, pr);
+            break;
+        }
+        case 3: {
+            int pr;
+            cout << "Enter priority to delete: ";
+            cin >> pr;
+            pq.deletePriority(pr);
+            break;
+        }
+        case 4:
+            pq.display();
+            break;
+        case 0:
+            cout << "Exiting Priority Queue Test...\n";
+            break;
+        default:
+            cout << "Invalid choice.\n";
+        }
+    } while (op != 0);
+}
+
+void heapSortTest() {
+    int n;
+    cout << "Enter number of elements to sort: ";
+    cin >> n;
+
+    vector<int> A(n + 1);
+    cout << "Enter elements:\n";
+    for (int i = 1; i <= n; i++)
+        cin >> A[i];
+
+    cout << "Before sorting: ";
+    for (int i = 1; i <= n; i++) cout << A[i] << " ";
+    cout << endl;
+
+    heapSort(A);
+
+    cout << "After sorting: ";
+    for (int i = 1; i <= n; i++) cout << A[i] << " ";
+    cout << endl;
+}
+
+int main() {
+    int choice;
+    do {
+        cout << "1. Heap \n";
+        cout << "2. Priority Queue\n";
+        cout << "3. Heap Sort \n";
+        cout << "4. Exit Program\n";
+
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1: heapTest(); break;
+        case 2: priorityQueueTest(); break;
+        case 3: heapSortTest(); break;
+        case 4: cout<<"programe stoped"; break;
+        default: cout << "Invalid choice.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}
